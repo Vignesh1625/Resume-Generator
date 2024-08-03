@@ -2,6 +2,8 @@ import streamlit as st
 from fpdf import FPDF
 import base64
 
+st.set_page_config(layout="wide")
+
 # Function to generate PDF
 def generate_pdf(details):
     pdf = FPDF()
@@ -37,7 +39,7 @@ def generate_pdf(details):
 
         for edu in details['education']:
             pdf.set_font("Arial", size=10.5, style='B')
-            pdf.cell(95, 5, txt=f"{edu['institution']}", ln=False)
+            pdf.cell(95, 5, txt=f"{edu['institution'].upper()}", ln=False)
             pdf.set_font("Arial", size=10.5)
             pdf.cell(95, 5, txt=f"{edu['location']}", ln=True, align='R')
 
@@ -59,27 +61,39 @@ def generate_pdf(details):
         pdf.ln(1)
 
         for exp in details['experience']:
-            pdf.set_font("Arial", size=12, style='B')
-            pdf.cell(95, 10, txt=f"{exp['company']}", ln=False)
-            pdf.set_font("Arial", size=12)
-            pdf.cell(95, 10, txt=f"{exp['location']}", ln=True, align='R')
+            pdf.set_font("Arial", size=10.5, style='B')
+            pdf.cell(95, 5, txt=f"{exp['company'].upper()}", ln=False)
+            pdf.set_font("Arial", size=10.5)
+            pdf.cell(95, 5, txt=f"{exp['location']}", ln=True, align='R')
 
-            pdf.cell(95, 10, txt=f"{exp['role']}", ln=False)
-            pdf.cell(95, 10, txt=f"{exp['year_in']} - {exp['year_out']}", ln=True, align='R')
+            pdf.cell(95, 5, txt=f"{exp['role']}", ln=False)
+            pdf.cell(95, 5, txt=f"{exp['year_in']} - {exp['year_out']}", ln=True, align='R')
 
-            pdf.multi_cell(0, 10, txt=f"• {exp['summary']}")
+            pdf.multi_cell(190  , 5, txt=f"{exp['summary']}")
             pdf.ln(2)
         pdf.ln(2)
     
     # Add projects
     if details['projects']:
-        pdf.set_font("Arial", size=12, style='B')
-        pdf.cell(200, 10, txt="Projects", ln=True, align='L')
-        pdf.set_font("Arial", size=12)
+        pdf.set_font("Arial", size=10.5, style='B')
+        pdf.cell(200, 5, txt="Projects", ln=True, align='L')
+
+        y_position = pdf.get_y()
+        pdf.set_line_width(0.3)
+        pdf.line(10, y_position, 200, y_position)
+        pdf.ln(1)
+
         for project in details['projects']:
-            pdf.cell(200, 10, txt=f"Title: {project['title']} ({project['date']})", ln=True)
-            pdf.multi_cell(0, 10, txt=f"Summary: {project['summary']}")
-            pdf.cell(200, 10, txt=f"Links: {project['links']}", ln=True)
+            pdf.set_font("Arial", size=10.5, style='B')
+            pdf.cell(95, 5, txt=f"{project['title'].upper()}", ln=False)
+            
+            pdf.set_font("Arial", size=10.5)
+            pdf.cell(95, 5, txt=f"{project['date']}", ln=True, align='R')
+
+            pdf.multi_cell(190, 5, txt=f"{project['summary']}", ln=True)
+            pdf.cell(200, 5, txt=f"Links: {project['links']}", ln=True)
+            pdf.ln(2)
+        pdf.ln(2)
     
     # Add skills
     if details['technical_skills'] or details['languages'] or details['frameworks_libraries']:
@@ -143,9 +157,10 @@ def generate_pdf(details):
     
     # Save the PDF
     pdf_output = f"resume_{details['name'].replace(' ', '_')}.pdf"
-    pdf.output(pdf_output.encode('utf-8'))
+    pdf.output(pdf_output)
     return pdf_output
 
+# Function to display the PDF in Streamlit
 def display_pdf(file_path):
     with open(file_path, "rb") as f:
         base64_pdf = base64.b64encode(f.read()).decode('utf-8')
@@ -173,13 +188,13 @@ details = {
     "codeforces": ""
 }
 
-# Page layout configuration
-st.set_page_config(layout="wide")
-left_col, right_col = st.columns([2, 2])
+st.title("Resume Generator")
+st.write("Fill in the details to generate your resume.")
+
+left_col, right_col = st.columns(2)
 
 with left_col:
-    st.header("Enter Your Details")
-    
+    st.subheader("Personal Details")
     details['name'] = st.text_input("Name")
     details['email'] = st.text_input("Email")
     details['phone'] = st.text_input("Phone")
@@ -226,7 +241,7 @@ with left_col:
     for i in range(num_projects):
         title = st.text_input(f"Project Title {i+1}", key=f"title_{i}")
         date = st.text_input(f"Project Date {i+1}", key=f"date_{i}")
-        summary = st.text_area(f"Project Summary {i+1}", key=f"project_summary_{i}")
+        summary = st.text_input(f"Project Summary {i+1}", key=f"project_summary_{i}")
         links = st.text_input(f"Project Links {i+1}", key=f"links_{i}")
         details['projects'].append({
             "title": title,
@@ -254,7 +269,7 @@ with left_col:
         provider = st.text_input(f"Certification Provider {i+1}", key=f"cert_provider_{i}")
         id = st.text_input(f"Certification ID {i+1}", key=f"cert_id_{i}")
         link = st.text_input(f"Certification Link {i+1}", key=f"cert_link_{i}")
-        description = st.text_area(f"Certification Description {i+1}", key=f"cert_description_{i}")
+        description = st.text_input(f"Certification Description {i+1}", key=f"cert_description_{i}")
         details['certifications'].append({
             "title": title,
             "provider": provider,
@@ -269,7 +284,7 @@ with left_col:
         title = st.text_input(f"Activity Title {i+1}", key=f"act_title_{i}")
         place = st.text_input(f"Activity Place {i+1}", key=f"act_place_{i}")
         year = st.text_input(f"Activity Year {i+1}", key=f"act_year_{i}")
-        summary = st.text_area(f"Activity Summary {i+1}", key=f"act_summary_{i}")
+        summary = st.text_input(f"Activity Summary {i+1}", key=f"act_summary_{i}")
         details['activities'].append({
             "title": title,
             "place": place,
@@ -282,7 +297,7 @@ with left_col:
     for i in range(num_additional):
         title = st.text_input(f"Additional Information Title {i+1}", key=f"add_title_{i}")
         date = st.text_input(f"Additional Information Date {i+1}", key=f"add_date_{i}")
-        summary = st.text_area(f"Additional Information Summary {i+1}", key=f"add_summary_{i}")
+        summary = st.text_input(f"Additional Information Summary {i+1}", key=f"add_summary_{i}")
         details['additional'].append({
             "title": title,
             "date": date,

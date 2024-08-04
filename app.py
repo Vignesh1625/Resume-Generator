@@ -87,7 +87,7 @@ def generate_pdf(details):
 
         for project in details['projects']:
             pdf.set_font("Arial", size=10.5, style='B')
-            pdf.cell(95, 5, text=f"{project['title'].upper()}", ln=False)
+            pdf.cell(95, 5, text=f"{project['title'].upper()}", ln=False, link=f"project['links]")
             
             pdf.set_font("Arial", size=10.5)
             pdf.cell(95, 5, text=f"{project['date']}", ln=True, align='R')
@@ -141,7 +141,7 @@ def generate_pdf(details):
 
         for cert in details['certifications']:
             pdf.set_font("Arial", size=10.5, style='B')
-            pdf.cell(95, 5, text=f"{cert['title'].upper()}", ln=False)
+            pdf.cell(95, 5, text=f"{cert['title'].upper()}", ln=False, link=f"{cert['link']}")
             pdf.set_font("Arial", size=10.5 )
             pdf.cell(95, 5, text=f"{cert['date']}", ln=True, align='R')
             #pdf.cell(200, 5, text=f"Link: {cert['link']}", ln=True)

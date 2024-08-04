@@ -87,7 +87,7 @@ def generate_pdf(details):
 
         for project in details['projects']:
             pdf.set_font("Arial", size=10.5, style='B')
-            pdf.cell(95, 5, text=f"{project['title'].upper()}", ln=False, link=f"project['links]")
+            pdf.cell(95, 5, text=f"{project['title'].upper()}", ln=False, link=f"{project['links']}")
             
             pdf.set_font("Arial", size=10.5)
             pdf.cell(95, 5, text=f"{project['date']}", ln=True, align='R')

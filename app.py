@@ -1,4 +1,5 @@
 import streamlit as st
+import io
 from fpdf import FPDF
 import base64
 import warnings
@@ -199,17 +200,23 @@ def generate_pdf(details):
         if details['codeforces']:
             pdf.cell(200, 10, text=f"Codeforces: {details['codeforces']}", ln=True)
     
-    # Save the PDF
-    pdf_output = f"resume_{details['name'].replace(' ', '_')}.pdf"
-    pdf.output(pdf_output)
-    return pdf_output
+    buffer = io.BytesIO()
+    pdf.output(buffer,"F")
+    buffer.seek(0)
+    return buffer
 
 # Function to display the PDF in Streamlit
-def display_pdf(file_path):
-    with open(file_path, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-    pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf">'
+def display_pdf(buffer):
+    #encode the buffer contenet using base64
+    base64_pdf = base64.b64encode(buffer.read()).decode('utf-8')
+    pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="600" type="application/pdf">'
     st.markdown(pdf_display, unsafe_allow_html=True)
+
+#function to download the pdf
+def download_pdf(buffer):
+    base64_pdf = base64.b64encode(buffer.read()).decode('utf-8')
+    st.markdown(f'<a href="data:application/pdf;base64,{base64_pdf}" download="resume.pdf">Click here to download</a>', unsafe_allow_html=True)
+
 
 # Default details for demonstration
 details = {
@@ -357,6 +364,18 @@ with left_col:
         details['codeforces'] = st.text_input("Codeforces Username")
 
 with right_col:
-    if st.button("Generate Resume"):
-        file_path = generate_pdf(details)   
-        display_pdf(file_path)
+    # Create two columns
+    col1, col2 = st.columns(2)
+    
+    # Button to generate and display resume
+    with col1:
+        if st.button("Generate Resume"):
+            buffer = generate_pdf(details)
+            display_pdf(buffer)
+    
+    # Button to download resume
+    with col2:
+        if st.button("Download Resume"):
+            buffer = generate_pdf(details)
+            download_pdf(buffer)
+

@@ -14,17 +14,11 @@ def generate_pdf(details):
     pdf.add_page()
 
     pdf.set_font("Arial", size=16, style='B')
-    if details['name'] == "":
-        details['name'] = "Your Name"
+
     pdf.cell(200, 5, text=details['name'].upper(), ln=True, align='C')
 
     pdf.set_font("Arial", size=10.5)
-    if details['address'] == "":
-        details['address'] = "Your Address"
-    if details['phone'] == "":
-        details['phone'] = "Your Phone"
-    if details['email'] == "":
-        details['email'] = "Your Email"
+
     personal_details = f"{details['address']} | {details['phone']} | {details['email']}"
     pdf.cell(200, 5, text=personal_details, ln=True, align='C')
 
@@ -135,7 +129,7 @@ def display_pdf(pdf):
     pdf.output(buffer, "F")
     buffer.seek(0)
     base64_pdf = base64.b64encode(buffer.read()).decode('utf-8')
-    pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="600" type="application/pdf">'
+    pdf_display = f'<embed src="data:application/pdf;base64,{base64_pdf}"  type="application/pdf">'
     st.markdown(pdf_display, unsafe_allow_html=True)
 
 
@@ -172,62 +166,91 @@ st.title("Resume Generator")
 left_col, right_col = st.columns(2)
 
 with left_col:
-    details["name"] = st.text_input("Name")
-    details["email"] = st.text_input("Email")
-    details["phone"] = st.text_input("Phone")
-    details["address"] = st.text_area("Address")
+    with st.expander("Personal Details"):
+        details["name"] = st.text_input("Name",value="")
+        details["email"] = st.text_input("Email", value="")
+        details["phone"] = st.text_input("Phone", value="")
+        details["address"] = st.text_input("Address" )
 
     # Education Section
-    num_edu = st.number_input("Number of education entries", min_value=0, value=0)
-    for i in range(num_edu):
-        with st.container():
-            institution = st.text_input(f"Institution {i + 1}")
-            location = st.text_input(f"Location {i + 1}")
-            degree = st.text_input(f"Degree {i + 1}")
-            year_in = st.text_input(f"Start Year {i + 1}")
-            year_out = st.text_input(f"End Year {i + 1}")
-            gpa = st.text_input(f"GPA {i + 1}")
-            details['education'].append({
-                'institution': institution, 'location': location, 'degree': degree,
-                'year_in': year_in, 'year_out': year_out, 'gpa': gpa
-            })
+    with st.expander("Education"):
+        num_edu = st.number_input("Number of education entries", min_value=0, value=0)
+        for i in range(num_edu):
+            with st.container():
+                institution = st.text_input(f"Institution {i + 1}")
+                location = st.text_input(f"Location {i + 1}")
+                degree = st.text_input(f"Degree {i + 1}")
+                year_in = st.date_input(f"Start Year {i + 1}", value=None)
+                year_out = st.date_input(f"End Year {i + 1}", value=None)
+                gpa = st.text_input(f"GPA {i + 1}")
+                details['education'].append({
+                    'institution': institution, 'location': location, 'degree': degree,
+                    'year_in': year_in, 'year_out': year_out, 'gpa': gpa
+                })
 
     # Experience Section
-    num_exp = st.number_input("Number of experience entries", min_value=0, value=0)
-    for i in range(num_exp):
-        with st.container():
-            company = st.text_input(f"Company {i + 1}")
-            location = st.text_input(f"Location {i + 1}")
-            role = st.text_input(f"Role {i + 1}")
-            year_in = st.text_input(f"Start Year {i + 1}")
-            year_out = st.text_input(f"End Year {i + 1}")
-            summary = st.text_area(f"Summary {i + 1}")
-            details['experience'].append({
-                'company': company, 'location': location, 'role': role,
-                'year_in': year_in, 'year_out': year_out, 'summary': summary
-            })
+    with st.expander("Experience"):
+        num_exp = st.number_input("Number of experience entries", min_value=0, value=0)
+        for i in range(num_exp):
+            with st.container():
+                company = st.text_input(f"Company {i + 1}")
+                location = st.text_input(f"Location {i + 1}")
+                role = st.text_input(f"Role {i + 1}")
+                year_in = st.date_input(f"Start Year {i + 1}", value=None)
+                year_out = st.date_input(f"End Year {i + 1}", value=None)
+                summary = st.text_area(f"Summary {i + 1}")
+                details['experience'].append({
+                    'company': company, 'location': location, 'role': role,
+                    'year_in': year_in, 'year_out': year_out, 'summary': summary
+                })
+
+    # Certifications Section
+    with st.expander("Certifications"):
+        num_certifications = st.number_input("Number of certifications entries", min_value=0, value=0)
+        for i in range(num_certifications):
+            with st.container():
+                certification = st.text_input(f"Certification {i + 1}")
+                date = st.date_input(f"Date {i + 1}", value=None)
+                summary = st.text_area(f"Summary {i + 1}")
+                details['certifications'].append({
+                    'certification': certification, 'date': date, 'summary': summary
+                })
+
+    # Activities Section
+    with st.expander("Activities"):
+        num_activities = st.number_input("Number of Activities entries",min_value=0,value=0)
+        for i in range(num_activities):
+            with st.container():
+                activity = st.text_input(f"Activity {i + 1}")
+                date = st.date_input(f"Date {i + 1}", value=None)
+                summary = st.text_area(f"Summary {i + 1}")
+                details['activities'].append({
+                    'activity': activity, 'date': date, 'summary': summary
+                })
 
 with right_col:
     # Projects Section
-    num_projects = st.number_input("Number of projects entries", min_value=0, value=0)
-    for i in range(num_projects):
-        with st.container():
-            title = st.text_input(f"Project Title {i + 1}")
-            links = st.text_input(f"Project Link {i + 1}")
-            date = st.text_input(f"Project Date {i + 1}")
-            summary = st.text_area(f"Project Summary {i + 1}")
-            details['projects'].append({
-                'title': title, 'links': links, 'date': date, 'summary': summary
-            })
+    with st.expander("Projects"):
+        num_projects = st.number_input("Number of projects entries", min_value=0, value=0)
+        for i in range(num_projects):
+            with st.container():
+                title = st.text_input(f"Project Title {i + 1}")
+                links = st.text_input(f"Project Link {i + 1}")
+                date = st.text_input(f"Project Date {i + 1}")
+                summary = st.text_area(f"Project Summary {i + 1}")
+                details['projects'].append({
+                    'title': title, 'links': links, 'date': date, 'summary': summary
+                })
 
     # Skills Section
-    technical_skills = st.text_area("Technical Skills (comma separated)").split(',')
-    languages = st.text_area("Languages (comma separated)").split(',')
-    frameworks_libraries = st.text_area("Frameworks/Libraries (comma separated)").split(',')
+    with st.expander("Skills"):
+        technical_skills = st.text_area("Technical Skills (comma separated)").split(',')
+        languages = st.text_area("Languages (comma separated)").split(',')
+        frameworks_libraries = st.text_area("Frameworks/Libraries (comma separated)").split(',')
 
-    details["technical_skills"] = technical_skills
-    details["languages"] = languages
-    details["frameworks_libraries"] = frameworks_libraries
+        details["technical_skills"] = technical_skills
+        details["languages"] = languages
+        details["frameworks_libraries"] = frameworks_libraries
 
 if st.button("Generate Resume"):
     pdf = generate_pdf(details)

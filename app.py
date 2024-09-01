@@ -11,9 +11,8 @@ warnings.filterwarnings('ignore')
 
 st.set_page_config(layout="wide")
 
-API_KEY = "AIzaSyAe0jHn8sIEmTMpbE5X9CMqvyG5h4cgMfM"
-os.environ["API_KEY"] = API_KEY
-genai.configure(api_key=os.environ["API_KEY"])
+API_KEY = os.getenv('API_KEY')
+genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 def repharseSentence(sentence):
     query = "Convert this Sentense Into a Professional Format by Adding required things to it in just 30 words"
